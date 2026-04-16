@@ -1,10 +1,14 @@
 const express = require('express');
 const cors = require('cors');
 const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Serve frontend
+app.use(express.static(__dirname));
 
 // DB connect
 const db = new sqlite3.Database('./database.db', (err) => {
@@ -54,13 +58,21 @@ app.post('/api/login', (req, res) => {
     });
 });
 
-// VIEW USERS (optional)
+// VIEW USERS
 app.get('/api/users', (req, res) => {
     db.all(`SELECT * FROM users`, [], (err, rows) => {
         res.json(rows);
     });
 });
 
-app.listen(3000, () => {
-    console.log("Server running on http://localhost:3000");
+// ROOT FIX (IMPORTANT)
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'login support.html'));
+});
+
+// PORT FIX (Render ready)
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, '0.0.0.0', () => {
+    console.log("Server running on port " + PORT);
 });
